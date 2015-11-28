@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'/>
+	<title>HELICOJS</title>
+	<script type='text/javascript' src='socket.io.js'></script>
+	<script type='text/javascript' src='jquery-2.1.4.min.js'></script>
+	<script type='text/javascript' src='script.js'></script>	
+
+	<link href='https://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+	<link rel="icon" type="image/png" href="favicon.png" />
+
+	<style type='text/css'>
+		body {background-image: url('background.jpg'); background-size: cover; margin: 0px;
+		color: white; background-color: black;
+		font-family: 'Droid Sans', sans-serif;}
+
+		h1 {font-size: 64pt; margin: 2%; }
+		.titleContainer {margin: 0px; width: 100%; background-color: rgba(0,0,0,0.5); display: inline-block;}
+
+		p {text-indent: 2em;}
+		button {border: 1px solid white; background-color: black; color: white; cursor: pointer;}
+		input {border: 2px solid black; background-color: black; color: white;}
+
+		.console {float: right;
+		    /* background-color: red; */
+		    height: 100%;
+		    width: 25%;
+		    display: block;
+		    position: fixed;
+		    top: 0px;
+		    right: 0px;
+		    color: lime;
+		    font-size: 10pt;
+		    -webkit-mask-image: -webkit-gradient(linear, left 20%, left bottom, from(rgba(0,0,0,0)), to(rgba(0,0,0,1)));
+		    -moz-mask-image: -moz-gradient(linear, left 20%, left bottom, from(rgba(0,0,0,0)), to(rgba(0,0,0,1)));
+		    mask-image: gradient(linear, left 20%, left bottom, from(rgba(0,0,0,0)), to(rgba(0,0,0,1)));
+		}
+
+		.consoleInside {
+			height: 600px;
+			position: absolute; bottom: 0px;
+			width: 100%;
+			margin-left: 8px;
+			line-height: 15px;
+			/* background-color: silver; */
+		}
+
+		.infos {
+			color: #aaa; font-size: 10pt; margin: 2em;
+			clear: both;
+			float:left;
+		}
+
+		.gamepad {
+			background-image: url('gamepad.png');
+			width: 800px;
+			height: 503px;
+			background-repeat: no-repeat;
+			float: left;
+			margin-left: -120px;
+		}
+
+		a {
+			text-decoration: none; color: #aaa;
+		}
+		a:hover {
+			color: white;
+		}
+
+		label {float: left; width: 250px;}
+
+		.paramz {
+			float: left;
+		}
+
+		.connectButton {
+			float: left;
+			height: 60px;
+			width: 150px;
+			margin-top: 16px;
+			margin-left: 16px;
+		}
+
+		.messageServer {
+			display: inline; color: cyan; font-weight: bold;
+		}
+
+
+
+	</style>
+</head>
+<body onload='main()'>
+	<div id='titleContainer' class='titleContainer'> <h1>HELICOJS</h1></div>
+
+	<div class='paramz'>
+		<p><label>Adresse MAC de l'aéronef : </label><input type='text' value='8C:DE:52:05:15:D4' id='mac'/><!-- <button onclick='Socket.change_helico()'>CHANGE</button> --></p>
+		<p><label>Serveur de l'Hélico :</label><input type='text' value='http://localhost:9000' id='server'> <!-- <button onclick='Socket.change_server()'>CHANGE</button> --></p>
+	</div>
+
+	<button onclick='Socket.connect()' id='coDiscoButton' class='connectButton'>CONNECT</button>
+	<!-- <button onclick='Socket.reset()' id='resetButton' class='connectButton'>RESTART SERVER</button> //-->
+
+
+	<div class='infos'>
+		Configuration de test :
+		<ul>
+			<li>Ubuntu 14.04LTS
+			<li>Bluez 4.101
+			<li>NodeJS 0.10.25
+		</ul>
+		Manipulation : 
+		<ul>
+			<li>Recharger à fond l'hélicoptère,
+			<li>L'allumer, l'apparier avec <i>blueman-manager</i> (pas avec <i>bluedevil !</i>),
+			<li>Lancer dans une console <i>server/server.sh</i>,
+			<li>Ouvrir dans le navigateur <i>http://localhost:9000/index.html</i>,
+			<li>Entrer l'adresse mac de l'helico, se connecter,
+			<li>Décoller en utilisant le <i>bouton 4</i>, maintenir l'altitude avec les boutons 4 et 6 seulement,<br/> puis régler le trimmer de sorte à stabiliser l'hélico,
+			<li>Enjoy :).
+		</ul>
+
+
+		Testé avec les hélicos suivants :
+		<ul>
+			<li>Bewii BBZ301
+			<li>Bewii BBZ302 'Sting bee'
+		</ul>
+
+		Controles (pour les n° des boutons, se conformer au schéma à droite et non aux n° sur le gamepad).<br/>Mettre le gamepad en mode analogique.
+		<ul>
+			<li><i>bouton 1</i> &rarr; atterrissage d'urgence, <i>bouton 4</i> &rarr; decollage rapide
+			<li><i>axe 0</i> &rarr; gauche/droite
+			<li><i>axe 1</i> &rarr; avancer
+			<li><i>bouton 4</i> &rarr; + haut, <i>bouton 6</i> &rarr; + bas
+			<li><i>bouton 5</i> et <i>bouton 7</i> &rarr; trimmer
+		</ul>
+
+		Liens :
+		<ul>
+			<li><a href='https://github.com/xavierjs/helicojs' target='_blank'>Github HelicoJS</a>
+			<li><a href='http://www.priceminister.com/offer/buy/191020957/gadgets-helicoptere-bluetooth-interactif-noir-pour-android-2-1.html' target='_blank'>Acheter l'hélico</a>
+			<li><a href='https://ex0ns.me/2012/09/16/analyse-d-un-protocole-beewi-helipad/' target='_blank'>Analyse d'un protocole Beewi Helipad</a>
+		</ul>
+	</div>
+
+	<div class='gamepad'></div>
+		
+	<div id='console' class='console'>
+		<div id='consoleInside' class='consoleInside'>
+		</div>
+	</div>
+</body>
+</html>

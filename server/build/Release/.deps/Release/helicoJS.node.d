@@ -1,0 +1,1 @@
+cmd_Release/helicoJS.node := ln -f "Release/obj.target/helicoJS.node" "Release/helicoJS.node" 2>/dev/null || (rm -rf "Release/helicoJS.node" && cp -af "Release/obj.target/helicoJS.node" "Release/helicoJS.node")
