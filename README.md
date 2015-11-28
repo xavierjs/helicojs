@@ -1,6 +1,6 @@
-# helicojs
 Helico JS
 ============
+
 ### Installation des packages ( avec *Ubuntu 14.04 LTS* ) :
     sudo apt-get install node npm blueman bluetooth bluez-utils bluez-tools bluez
     sudo npm install socket.io
@@ -32,6 +32,6 @@ Helico JS
 
 ### Liens
 
-    * [https://github.com/xavierjs/helicojs](Github HelicoJS)
-    * [http://www.priceminister.com/offer/buy/191020957/gadgets-helicoptere-bluetooth-interactif-noir-pour-android-2-1.html](Acheter l'hélico)
-    * [https://ex0ns.me/2012/09/16/analyse-d-un-protocole-beewi-helipad/](Analyse d'un protocole Beewi Helipad)
+    * [Github HelicoJS](https://github.com/xavierjs/helicojs)
+    * [Acheter l'hélico](http://www.priceminister.com/offer/buy/191020957/gadgets-helicoptere-bluetooth-interactif-noir-pour-android-2-1.html)
+    * [Analyse d'un protocole Beewi Helipad](https://ex0ns.me/2012/09/16/analyse-d-un-protocole-beewi-helipad/)
