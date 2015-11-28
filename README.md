@@ -25,7 +25,7 @@ Helico JS
 8. Enjoy :). 
 
 ### Helicos compatibles
-	(liste non exhaustive)
+(liste non exhaustive)
 
 * Bewii BBZ301
 * Bewii BBZ302 *Sting bee*
