@@ -164,7 +164,7 @@ var Gamepad=(function() {
 
 	var that = {
 		init: function() {
-			that.refresh_vUseless();
+			//that.refresh_vUseless();
 
 			//init gamepad
 			window.addEventListener("gamepadconnected", function(e) {
@@ -180,10 +180,10 @@ var Gamepad=(function() {
 			});
 		}, //end init()
 
-		refresh_vUseless: function() {
+		/*refresh_vUseless: function() {
 			_vx=parseInt($('#vUseless').val());
 			Console.log('CHANGE USELESS SPEED TO '+_vx);
-		},
+		},*/
 
 		animate_physics: function() {
 			//console.log('animate_physics');
@@ -247,13 +247,20 @@ var Gamepad=(function() {
 			var ga0=_gamepad.axes[0];
 			if (Math.abs(ga0)<_epsilonGamepad) {
 				_vTrim=_vTrimMean;
-				_vBalance=4;
+				_vBalance=4; //5; 101
+				_vx=Math.round((_vxmax+_vxmin)/2);
 			} else if (ga0>0){
+				//right turn -> OK
 				_vTrim=_vTrimMean+ga0*(_vTrimMax-_vTrimMean);
-				_vBalance=7; //100
+				_vBalance=7; //111
+				_vx=_vxmin;
 				//ca marche de ce cote
 			} else if (ga0<0){
-				_vBalance=1; //111
+				//left turn
+				//vbalance=13; -> turn right, not good 1101
+				//vbalance=1; -> not very good 0001
+				_vBalance=1;//1; //111
+				_vx=_vxmax;
 				_vTrim=_vTrimMean-ga0*(_vTrimMin-_vTrimMean);
 			}
 
