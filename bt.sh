@@ -4,8 +4,10 @@ sleep 1
 sudo killall bluedevil-helper
 sudo killall bluedevil-monolithic
 sudo killall blueman-applet
+sudo service bluetooth start
+sleep 0.5
 sudo hciconfig hci0 down
-sleep 1
+sleep 0.5
 sudo hciconfig hci0 up
 sudo hciconfig hci0 piscan
 sleep 1

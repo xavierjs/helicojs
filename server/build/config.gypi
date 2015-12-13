@@ -106,7 +106,7 @@
     "parseable": "",
     "globalignorefile": "/etc/npmignore",
     "cache_lock_retries": "10",
-    "group": "29999",
+    "group": "1000",
     "init_author_email": "",
     "searchexclude": "",
     "git": "git",

@@ -24,6 +24,7 @@
 
 		.console {float: right;
 		    /* background-color: red; */
+		    pointer-events: none;
 		    height: 100%;
 		    width: 25%;
 		    display: block;
@@ -38,6 +39,7 @@
 		}
 
 		.consoleInside {
+			pointer-events: none;
 			height: 600px;
 			position: absolute; bottom: 0px;
 			width: 100%;
@@ -47,7 +49,8 @@
 		}
 
 		.infos {
-			color: #aaa; font-size: 10pt; margin: 2em;
+			color: #aaa; font-size: 10pt; margin-left: 0.5em;
+			margin-top: -4em;
 			clear: both;
 			float:left;
 		}
@@ -58,6 +61,7 @@
 			height: 503px;
 			background-repeat: no-repeat;
 			float: left;
+			margin-top: 2em;
 			margin-left: -120px;
 		}
 
@@ -85,6 +89,11 @@
 		.messageServer {
 			display: inline; color: cyan; font-weight: bold;
 		}
+		
+		.hexa {
+		  margin: 16px;
+		  float: right;
+		}
 
 
 
@@ -94,29 +103,37 @@
 	<div id='titleContainer' class='titleContainer'> <h1>HELICOJS</h1></div>
 
 	<div class='paramz'>
-		<p><label>Adresse MAC de l'aéronef : </label><input type='text' value='8C:DE:52:05:15:D4' id='mac'/><!-- <button onclick='Socket.change_helico()'>CHANGE</button> --></p>
-		<p><label>Serveur de l'Hélico :</label><input type='text' value='http://localhost:9000' id='server'> <!-- <button onclick='Socket.change_server()'>CHANGE</button> --></p>
+		<p><label>Adresse MAC de l'aéronef : </label><input type='text' value='8C:DE:52:05:17:58' id='mac'/></p>
+		<p><label>Serveur de l'Hélico :</label><input type='text' value='http://localhost:9000' id='server'></p>
 	</div>
 
 	<button onclick='Socket.connect()' id='coDiscoButton' class='connectButton'>CONNECT</button>
 	<!-- <button onclick='Socket.reset()' id='resetButton' class='connectButton'>RESTART SERVER</button> //-->
 
-
+	<div class='hexa'>
+	  	<p><label>Send hexa code : </label><input type='text' value='1400005d70ff' id='hexa'/><button onclick='Socket.send_hexa()'>GO</button></p>
+		<p><label>V useless (0-255) : </label><input type='text' value='50' id='vUseless'/><button onclick='Gamepad.refresh_vUseless()'>GO</button></p>
+		<p>Les 2 contrôles ci-dessus sont uniquement pour le debug !</p>
+	</div>
+	
 	<div class='infos'>
 		Configuration de test :
 		<ul>
 			<li>Ubuntu 14.04LTS
 			<li>Bluez 4.101
+			<li>Blueman applet 1.23
 			<li>NodeJS 0.10.25
 		</ul>
 		Manipulation : 
 		<ul>
 			<li>Recharger à fond l'hélicoptère,
-			<li>L'allumer, l'apparier avec <i>blueman-manager</i> (pas avec <i>bluedevil !</i>),
+			<li>L'allumer, l'apparier avec <i>blueman-manager</i> (pas avec <i>bluedevil !</i> - désactiver la prise en charge bluetooth KDE/Gnome),
+			<li>Ne lier l'hélico, détecté comme une oreillette, à aucun service bluetooth,
+			<li>Quand vous exécutez dans le shell <i>ps -A | grep blue</i> vous ne devez voir que <i>bluetoothd</i>, <i>indicator-bluet</i>, <i>blueman-applet</i>,
 			<li>Lancer dans une console <i>server/server.sh</i>,
 			<li>Ouvrir dans le navigateur <i>http://localhost:9000/index.html</i>,
-			<li>Entrer l'adresse mac de l'helico, se connecter,
-			<li>Décoller en utilisant le <i>bouton 4</i>, maintenir l'altitude avec les boutons 4 et 6 seulement,<br/> puis régler le trimmer de sorte à stabiliser l'hélico,
+			<li>Entrer l'adresse mac de l'helico, se connecter (attendre au moins 15 sec après l'allumage de l'hélico avant de connecter),
+			<li>Décoller en utilisant le <i>bouton 4</i>, maintenir l'altitude avec les boutons 4 et 6 seulement,<br/> puis régler le trimmer de sorte à stabiliser l'hélico en rotation latérale,
 			<li>Enjoy :).
 		</ul>
 

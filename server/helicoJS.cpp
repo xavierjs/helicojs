@@ -88,29 +88,57 @@ Handle<Value> setBTDATA(const Arguments& args)
     Local<Integer> vTrim = args[3]->ToInteger();
     int32_t vTrimVal = vTrim->Value();
 
+    Local<Integer> vyFront = args[4]->ToInteger();
+    int32_t vyFrontVal = vyFront->Value();
+
+    Local<Integer> vyBack = args[5]->ToInteger();
+    int32_t vyBackVal = vyBack->Value();
+
+    Local<Integer> vBalance = args[6]->ToInteger();
+    int32_t vBalanceVal = vBalance->Value();
+
+
     int64_t vTrimcool=vTrimVal;
 
-    if (vTrimVal == 0){   
-        trimmerValue=0;     
-        prefixe = 0x150000000000;
-    } else if (vTrimVal>0){
-        trimmerValue=vTrimcool<<8;
-        prefixe = 0x170000000000;
-    } else if (vTrimVal<0) {
-        trimmerValue=-(vTrimcool<<8);
-        prefixe = 0x140000000000;
-    }
+    //if (vTrimVal == 0){   
+    //    trimmerValue=0;     
+    //prefixe = 0x150000000000;
+    //} else if (vTrimVal>0){
+    //    trimmerValue=vTrimcool<<8;
+    //    prefixe = 0x170000000000;
+    //} else if (vTrimVal<0) {
+    //    trimmerValue=-(vTrimcool<<8);
+    //    prefixe = 0x140000000000;
+    //}
 
     int64_t vxcool=vxVal;
     int64_t vzcool=vzVal;
     int64_t vycool=vyVal;
+    int64_t vyFrontcool=vyFrontVal;
+	int64_t vyBackcool=vyBackVal;
+	int64_t vBalancecool=vBalanceVal;
 
 
-    firstRotorSpeed=vzcool << 32;
+
+    trimmerValue=vTrimcool<<8;
     turnValue =  vxcool <<16;
     secondRotorSpeed=vycool << 24;
-
+    firstRotorSpeed=vzcool << 32;
+    prefixe=((vyFrontcool<<6) + (vyBackcool<<4) + vBalancecool) << 40;
     
+
+    //prefixe : en binaire
+    //4 premiers bits : 
+    // 1100 ->avant
+    // 0011 -> arriere
+    //doit etre different de 0 (au moins 1)
+
+    //4 bits suivants :
+    //0000 -> seule l'hélice du dessus tourne
+    //1111 -> seule l'hélice de dessous tourne
+
+    //valeur idéale : 5
+
     command = prefixe + firstRotorSpeed + secondRotorSpeed + turnValue + trimmerValue + suffixe;
     printf("%s \n", intToChar(command));
     //printf("command %i \n", command);
@@ -134,6 +162,24 @@ Handle<Value> setMAC(const Arguments& args)
     return scope.Close(Integer::New(0));
 } //end setMAC()
 
+Handle<Value> setHexa(const Arguments& args)
+{
+    HandleScope scope;
+    
+    lli command; // Final Command sent to the Heli
+    
+    Local<Integer> v8valz = args[0]->ToInteger();
+    int64_t valz = v8valz->Value();
+    command=valz;
+    
+    printf("hexa - %s \n", intToChar(command));
+    fflush(stdout);
+    
+    int status;
+    status = write(soukette, intToChar(command), 14); // We know that we have to send 14 bytes by analysing the requests
+    
+    return scope.Close(Integer::New(status));
+} //end setHexa()
 
 void RegisterModule(Handle<Object> target) {
     target->Set(String::NewSymbol("connectBT"),
@@ -141,7 +187,9 @@ void RegisterModule(Handle<Object> target) {
     target->Set(String::NewSymbol("setBTDATA"),
         FunctionTemplate::New(setBTDATA)->GetFunction());
     target->Set(String::NewSymbol("setMAC"),
-        FunctionTemplate::New(setMAC)->GetFunction());           
+        FunctionTemplate::New(setMAC)->GetFunction());   
+    target->Set(String::NewSymbol("setHexa"),
+        FunctionTemplate::New(setHexa)->GetFunction());
 }
 
 NODE_MODULE(helicoJS, RegisterModule);
