@@ -145,7 +145,7 @@ var Console=(function() {
 
 var Gamepad=(function() {
 	var _isGamepad=false, _chromeGamepad=false;
-	var _vz=0, _vzmin=0, _vzmax=0xFF, _az=0x02; //up down
+	var _vz=0, _vzmin=0, _vzmax=0xFF, _az=0x01; //up down
 	var _vxMean=0x50, _vx=0, _vxmin=0, _vxmax=0xFF, _ax=0x04;  //left right
 	var _vTrim, _vTrimMean=71, _vTrimMin=0, _vTrimMax=0xFF, _aTrim=0x04;
 	var _vy=0, _vymin=-0xFF, _vymax=0xFF, _ay=0x02;
