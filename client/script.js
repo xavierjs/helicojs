@@ -1,10 +1,16 @@
 var __timer, __hexaMode=false;
 var main=function() {
-	//$(window).load(function() {
-		Console.init();
-		Gamepad.init();
-		Socket.init();
-	//});
+	HelicoLeapController.init();
+	Console.init();
+	Gamepad.init();
+	Socket.init();
+
+	if (document.cookie){
+		var split0=document.cookie.split('macBegin');
+		if (split0.length>1) {
+			$('#mac').val(split0[1].split('macEnd')[0]);
+		}
+	}
 }; //end main();
 
 
@@ -25,14 +31,6 @@ var Socket=(function() {
 					that.connect();
 				}
 			});
-
-			/* $('#resetButton').click(function() {
-				_connecting=false;
-				if (_connected){
-					that.disconnect();
-				}
-				$('#coDiscoButton').html('CONNECT').removeAttr('disabled');
-			}); */
 		}, //end init()
 
 		connect: function() {
@@ -41,6 +39,7 @@ var Socket=(function() {
 			$('#coDiscoButton').html('CONNECTING...').attr("disabled", "disabled");
 
 			_mac=$('#mac').val();
+			document.cookie=' macBegin'+_mac+'macEnd';
 			_server=$('#server').val();
 			Console.log('Set server to '+_server);
 			Console.log('Set mac to '+_mac);
@@ -93,8 +92,9 @@ var Socket=(function() {
 
 		change_helico: function() {
 			_mac=$('#mac').val();
+			document.cookie=' macBegin'+_mac+'macEnd';
 			Console.log('Change mac to '+_mac);
-			that.send('mac|'+_mac);
+			//that.send('mac|'+_mac);
 		},
 
 		is_running: function() {
@@ -164,8 +164,7 @@ var Gamepad=(function() {
 
 	var that = {
 		init: function() {
-			//that.refresh_vUseless();
-
+			
 			//init gamepad
 			window.addEventListener("gamepadconnected", function(e) {
 			  Console.log("Contrôleur n°"+e.gamepad.index+" connecté : "+e.gamepad.id+".<br/>"+e.gamepad.buttons.length+" boutons, "+e.gamepad.axes.length+" axes.");
@@ -180,154 +179,126 @@ var Gamepad=(function() {
 			});
 		}, //end init()
 
-		/*refresh_vUseless: function() {
-			_vx=parseInt($('#vUseless').val());
-			Console.log('CHANGE USELESS SPEED TO '+_vx);
-		},*/
-
+		
 		animate_physics: function() {
 			//console.log('animate_physics');
 			if (!Socket.is_connected()) {
-			    console.log('Stop main loop bkoz connection lost');
+			    //console.log('Stop main loop bkoz connection lost');
 			    Console.log('Stop loop');
 			    clearInterval(__timer);
 			    return;
 			}
 			
-			if (!_isGamepad) {
-				if ('getGamepads' in navigator){
-					var gamepads=navigator.getGamepads();
-					if (typeof(gamepads[0])==='undefined'){
-						return;
-					} else {
-						_isGamepad=true;
-						_chromeGamepad=true;
-						_gamepad=gamepads[0];
+			var msg;
+			if (HelicoLeapController.is_connected()){
+				msg=HelicoLeapController.get_msg();
+			} else {
+				if (!_isGamepad) {
+					if ('getGamepads' in navigator){
+						var gamepads=navigator.getGamepads();
+						if (typeof(gamepads[0])==='undefined'){
+							return;
+						} else {
+							_isGamepad=true;
+							_chromeGamepad=true;
+							_gamepad=gamepads[0];
+						}
 					}
 				}
-			}
 
-			if (_chromeGamepad){
-				_gamepad=navigator.getGamepads()[0];
-			}
-
-			window.gamepad=_gamepad;
-
-			//UP or DOWN (main rotor)
-			//_vz-=Math.round(_gamepad.axes[1])*_az;
-			if (_gamepad.buttons[4].value===0 && _gamepad.buttons[6].value===1){
-				_vz-=_az;
-			}
-			if (_gamepad.buttons[4].value===1 && _gamepad.buttons[6].value===0){
-				_vz+=_az;
-			}
-			_vz=clamp(_vz, _vzmin, _vzmax);
-
-
-
-
-			//TRIMMER
-			/*if (_gamepad.buttons[5].value===0 && _gamepad.buttons[7].value===1){
-				_vTrim-=_aTrim;
-			}
-			if (_gamepad.buttons[5].value===1 && _gamepad.buttons[7].value===0){
-				_vTrim+=_aTrim;
-			}
-			_vTrim=clamp(_vTrim, _vTrimMin, _vTrimMax);*/
-
-			if (_gamepad.buttons[5].value===0 && _gamepad.buttons[7].value===1){
-				--_vTrimMean;
-			}
-			if (_gamepad.buttons[5].value===1 && _gamepad.buttons[7].value===0){
-				++_vTrimMean;
-			}
-			_vTrimMean=clamp(_vTrimMean, _vTrimMin, _vTrimMax);
-
-
-			var ga0=_gamepad.axes[0];
-			if (Math.abs(ga0)<_epsilonGamepad) {
-				_vTrim=_vTrimMean;
-				_vBalance=4; //5; 101
-				_vx=Math.round((_vxmax+_vxmin)/2);
-			} else if (ga0>0){
-				//right turn -> OK
-				_vTrim=_vTrimMean+ga0*(_vTrimMax-_vTrimMean);
-				_vBalance=7; //111
-				_vx=_vxmin;
-				//ca marche de ce cote
-			} else if (ga0<0){
-				//left turn
-				//vbalance=13; -> turn right, not good 1101
-				//vbalance=1; -> not very good 0001
-				_vBalance=1;//1; //111
-				_vx=_vxmax;
-				_vTrim=_vTrimMean-ga0*(_vTrimMin-_vTrimMean);
-			}
-
-			if (_vTrim>0) _vTrim=Math.floor(_vTrim);
-			if (_vTrim<0) _vTrim=Math.ceil(_vTrim);
-
-			//LEFT and RIGHT
-			/*if (_gamepad.axes[0]*(_vx-_vxMean)>0) _vx=_vxMean;
-
-			//_vx-=Math.round(_gamepad.axes[0])*_ax;
-			_vx-=_gamepad.axes[0]*_ax;
-			_vx=clamp(_vx, _vxmin, _vxmax);
-
-			if (Math.abs(_gamepad.axes[0])<_epsilonGamepad && _vx!==_vxMean){
-				_vx+=(_vx>_vxMean)?-_ax:_ax;
-			}*/
-
-			//GO FORWARD (second rotor)
-			/*if (_gamepad.axes[1]*_vy>0) _vy=0;
-			_vy-=_gamepad.axes[1]*_ay;
-			_vy=clamp(_vy, _vymin, _vymax);
-
-			if (Math.abs(_gamepad.axes[1])<_epsilonGamepad && _vy!==0){
-				_vy+=(_vy>0)?-_ay:_ay;
-			}*/
-			_vy=(-_gamepad.axes[1]+1)/2;
-			_vy=_vymin+_vy*(_vymax-_vymin);
-			if (_vy>=0) _vy=Math.floor(_vy);
-			if (_vy<0) _vy=Math.ceil(_vy);
-
-			if (Math.abs(_vy)<_ay){
-				_vyFront=0;
-				_vyBack=1;
-			} else if (_vy>0){
-				_vyFront=3;
-				_vyBack=0;
-			} else {
-				_vyFront=0;
-				_vyBack=3;
-			}
-			//var vyNorm=(_vy-_vymin)/(_vymax-_vymin);
-			//_vPrefixe=Math.floor(_vPrefixeMin+(_vPrefixeMax-_vPrefixeMin)*vyNorm);
-
-
-			if (_gamepad.buttons[0].value===1) {
-				Console.log('*** Helico UP MAX ***');
-				_vz=_vzmax;
-			}
-			if (_gamepad.buttons[2].value===1) {
-				if (__hexaMode) {
-				  __hexaMode=false;
-				  console.log('Disable hexa mode');
-				  Console.log('Disable hexa mode');
+				if (_chromeGamepad){
+					_gamepad=navigator.getGamepads()[0];
 				}
-				Console.log('*** Helico DOWN MAX ***');
-				_vz=_vzmin;
-			}
-      
+
+				//window.gamepad=_gamepad;
+
+				//UP or DOWN (main rotor)
+				if (_gamepad.buttons[4].value===0 && _gamepad.buttons[6].value===1){
+					_vz-=_az;
+				}
+				if (_gamepad.buttons[4].value===1 && _gamepad.buttons[6].value===0){
+					_vz+=_az;
+				}
+				_vz=clamp(_vz, _vzmin, _vzmax);
+
+
+
+
+				//LEFT or RIGHT
+				if (_gamepad.buttons[5].value===0 && _gamepad.buttons[7].value===1){
+					--_vTrimMean;
+				}
+				if (_gamepad.buttons[5].value===1 && _gamepad.buttons[7].value===0){
+					++_vTrimMean;
+				}
+				_vTrimMean=clamp(_vTrimMean, _vTrimMin, _vTrimMax);
+
+
+				var ga0=_gamepad.axes[0];
+				if (Math.abs(ga0)<_epsilonGamepad) {
+					_vTrim=_vTrimMean;
+					_vBalance=4; //5; 101
+					_vx=Math.round((_vxmax+_vxmin)/2);
+				} else if (ga0>0){
+					//right turn -> OK
+					_vTrim=_vTrimMean+ga0*(_vTrimMax-_vTrimMean);
+					_vBalance=7; //111
+					_vx=_vxmin;
+					//ca marche de ce cote
+				} else if (ga0<0){
+					//left turn
+					//vbalance=13; -> turn right, not good 1101
+					//vbalance=1; -> not very good 0001
+					_vBalance=1;//1; //111
+					_vx=_vxmax;
+					_vTrim=_vTrimMean-ga0*(_vTrimMin-_vTrimMean);
+				}
+
+				if (_vTrim>0) _vTrim=Math.floor(_vTrim);
+				if (_vTrim<0) _vTrim=Math.ceil(_vTrim);
+
+				//FORWARD or BACKWARD
+				_vy=(-_gamepad.axes[1]+1)/2;
+				_vy=_vymin+_vy*(_vymax-_vymin);
+				if (_vy>=0) _vy=Math.floor(_vy);
+				if (_vy<0) _vy=Math.ceil(_vy);
+
+				if (Math.abs(_vy)<_ay){
+					_vyFront=0;
+					_vyBack=1;
+				} else if (_vy>0){
+					_vyFront=3;
+					_vyBack=0;
+				} else {
+					_vyFront=0;
+					_vyBack=3;
+				}
+				
+
+				//UP AND DOWN MAX
+				if (_gamepad.buttons[0].value===1) {
+					Console.log('*** Helico UP MAX ***');
+					_vz=_vzmax;
+				}
+				if (_gamepad.buttons[2].value===1) {
+					if (__hexaMode) {
+					  __hexaMode=false;
+					  console.log('Disable hexa mode');
+					  Console.log('Disable hexa mode');
+					}
+					Console.log('*** Helico DOWN MAX ***');
+					_vz=_vzmin;
+				}
+				msg=Math.round(_vx)+'|'+_vz+'|'+Math.abs(Math.round(_vy))+'|'+_vTrim+'|'+_vyFront+'|'+_vyBack+'|'+_vBalance;
+			} //end if  the leap motion is disconnected      
+
 
 			if (_counter%6===0 && Socket.is_running() && !__hexaMode){
-				var msg=Math.round(_vx)+'|'+_vz+'|'+Math.abs(Math.round(_vy))+'|'+_vTrim+'|'+_vyFront+'|'+_vyBack+'|'+_vBalance;
 				Socket.send(msg);
 				if (_counter%(6*4)===0){
 					Console.log('speeds : '+msg);
 				}
-			}
-			//console.log(_vx, _vz, _vy, _vTrim);
+			}			
 
 			++_counter;
 		}, //end animate_physics();
@@ -339,3 +310,7 @@ var Gamepad=(function() {
 
 	return that;
 })(); //end Gamepad()
+
+
+
+$(document).ready(main);
