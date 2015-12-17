@@ -56,7 +56,7 @@ var HelicoLeapController=(function() {
 	var process_rotationSpeed=function(tanTheta) {
 		_vx=Math.round(tanTheta*0xFF*_settings.rotationSensibility);
 		_vx=clamp(_vx, -0xFF, 0xFF);
-		console.log(_vx);
+		//console.log(_vx);
 	};
 
 
@@ -176,7 +176,7 @@ var HelicoLeapController=(function() {
 				//left turn
 				vBalance=1;
 				//_vx=_vxmax;
-				vTrim=_vTrimMean+ga0*_settings.vTrimMean;
+				vTrim=_settings.vTrimMean+ga0*_settings.vTrimMean;
 				vx=_settings.vxMean+ga0*_settings.vxMean;
 			}
 
