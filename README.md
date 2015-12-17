@@ -13,6 +13,7 @@ Helico JS
 * Bluez 4.101
 * NodeJS 0.10.25 
 * Blueman-applet 1.23
+* Leap motion drivers 2.3.1
 
 ### Manipulation
 
@@ -27,6 +28,10 @@ Helico JS
 9. Entrer l'adresse mac de l'helico, se connecter,
 10. Décoller en utilisant le bouton 4, maintenir l'altitude avec les boutons 4 et 6 seulement, puis régler le trimmer de sorte à stabiliser l'hélico,
 11. Enjoy :). 
+
+### Contrôles avec la leap motion
+
+Si une leap motion est branchée, elle est utilisée par défaut (le gamepad n'est plus disponible). Commencez le poing fermé, face à la leap motion. Ouvrez-le et l'hélico décolle. Concentrez-vous d'abord à contrôller l'altitude en jouant sur la hauteur de votre main, la paume parallèle et face au sol. Ne serez pas vos doigts, laissez votre main décontractée, les doigts dessérez. Une fois que vous savez contrôler l'altitude, apprenez à contrôler la direction en faisant tourner votre main autour de votre poignet (côté pouce ou côté petit doigt). Enfin, controllez la direction de l'appareil en penchant votre main à l'avant ou à l'arrière. Pour arrêtez, fermez le poing. L'aéronef atterrit alors en urgence.
 
 ### Helicos compatibles
 (liste non exhaustive)
