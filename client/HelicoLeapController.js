@@ -4,11 +4,13 @@ spec : helico : instance of Helico
 */
 var HelicoLeapController=(function() {
 	var _settings={
-		verticalSensibility: 2, //higher -> more sensitive
-		forwardSensibility: 1.4, //higher -> more sensitive
-		rotationSensibility: 1.4, //higher -> more sensitive
+		verticalSensibility: 1.5, //higher -> more sensitive
+		forwardSensibility: 1.1, //higher -> more sensitive
+		rotationSensibility: 1.1, //higher -> more sensitive
 		vTrimMean: 71,
-		vxMean: 127
+		vxMean: 0x50,
+		vxThreshold: 0x10,
+		vyThreshold: 0x20
 	};
 
 	var _modes={
@@ -48,7 +50,7 @@ var HelicoLeapController=(function() {
 	};
 
 	var process_forwardSpeed=function(tanPhi) {
-		_vy=Math.round(tanPhi*0xFF*_settings.forwardSensibility);
+		_vy=Math.round(-tanPhi*0xFF*_settings.forwardSensibility);
 		_vy=clamp(_vy, -0xFF, 0xFF);
 		//console.log(_vy);
 	};
@@ -93,6 +95,7 @@ var HelicoLeapController=(function() {
 					if (data.hands[0].fingers.length<3) {
 						_mode=_modes.waiting;
 						console.log('INFO in HelicoLeapController - process() : entering waiting mode...');
+						landOn();
 						return;
 					}			
 					break;
@@ -161,7 +164,7 @@ var HelicoLeapController=(function() {
 			//RIGHT OR LEFT
 			var vBalance, vTrim,vx;
 			var ga0=_vx/0xFF;
-			if (Math.abs(_vx)<0x04) {
+			if (Math.abs(_vx)<_settings.vxThreshold) {
 				//no turn
 				vTrim=_settings.vTrimMean;
 				vBalance=4;
@@ -186,7 +189,7 @@ var HelicoLeapController=(function() {
 
 			//FORWARD or BACKWARD
 			var vyFront, vyBack;
-			if (Math.abs(_vy)<0x04){
+			if (Math.abs(_vy)<_settings.vyThreshold){
 				vyFront=0;
 				vyBack=1;
 			} else if (_vy>0){
@@ -197,8 +200,16 @@ var HelicoLeapController=(function() {
 				vyBack=3;
 			}
 
+			var vyCool=Math.abs(_vy);
+			if (vyCool<_settings.vyThreshold){
+				vyCool=0;
+			} else {
+				vyCool=0xFF*(vyCool-_settings.vyThreshold)/(0xFF-_settings.vyThreshold);
+			}
 
-			var msg=vx+'|'+_vz+'|'+Math.abs(Math.round(_vy))+'|'+vTrim+'|'+vyFront+'|'+vyBack+'|'+vBalance;
+			
+
+			var msg=vx+'|'+_vz+'|'+Math.round(vyCool)+'|'+vTrim+'|'+vyFront+'|'+vyBack+'|'+vBalance;
 			return msg;
 		} //end get_msg()
 	}; //end that
