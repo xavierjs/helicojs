@@ -5,13 +5,17 @@ spec : helico : instance of Helico
 var HelicoLeapController=(function() {
 	var _settings={
 		verticalSensibility: 1.5, //higher -> more sensitive
-		forwardSensibility: 1.1, //higher -> more sensitive
-		rotationSensibility: 1.1, //higher -> more sensitive
-		vTrimMean: 71,
-		vxMean: 0x50,
-		vxThreshold: 0x10,
-		vyThreshold: 0x20
-	};
+		forwardSensibility: 1.3, //higher -> more sensitive
+		rotationSensibility: 1.3, //higher -> more sensitive
+		vTrimMean: 60, //0x71, //71, //high -> tendance à tourner sur la gauche
+		//vxMean: 0x80, //petit -> tourne à droite
+		vxThreshold: 0x20,
+		vyThreshold: 0x16,
+		vBalanceMiddle: 0x4, //100
+		vBalanceRight: 0x7,  //111
+		vBalanceLeft: 0x1    //001
+	}; //end _settings
+	window.s=_settings; //for debug
 
 	var _modes={
 		idle: 0,   //nothing to do
@@ -24,7 +28,7 @@ var HelicoLeapController=(function() {
 	var _helico=false;
 	var _palmPosition0=[0,0,0];
 	var _palmEuler=[0,0,0];
-	var _angle0=0;
+	var _angle0=0, _angle=0;
 	var _vx=0, _vy=0, _vz=0;
 
 	var clamp=function(x,min,max){
@@ -113,6 +117,7 @@ var HelicoLeapController=(function() {
 						_palmPosition0[2]=data.hands[0].palmPosition[2];
 						//_angle0=data.hands[0].fingers[0]
 						_angle0=Math.atan2(data.hands[0].direction[2], data.hands[0].direction[0]); //   dz/dx
+						_angle=_angle0;
 						takeOff();
 						_mode=_modes.pilot;
 					}
@@ -131,13 +136,17 @@ var HelicoLeapController=(function() {
 						_mode=_modes.idle;
 					}
 
+					_angle=Math.PI/2+Math.atan2(data.hands[0].direction[2], data.hands[0].direction[0]); //   dz/dx
+					
+
 					//compute euler angles of the palm
 					var nx=data.hands[0].palmNormal[0];
 					var ny=data.hands[0].palmNormal[1];
 					var nz=data.hands[0].palmNormal[2];
 
 					//compute alpha ( yaw correction )
-					var alpha=Math.atan2(data.hands[0].direction[2], data.hands[0].direction[0])-_angle0;
+					var alpha=_angle; //Math.atan2(data.hands[0].direction[2], data.hands[0].direction[0])-_angle0;
+					//console.log('a ', _angle);
 					var ca=Math.cos(alpha), sa=Math.sin(alpha);
 
 					//rotate n around(Oy)
@@ -163,7 +172,7 @@ var HelicoLeapController=(function() {
 
 			//RIGHT OR LEFT
 			var vBalance, vTrim,vx;
-			var ga0=_vx/0xFF;
+			/*var ga0=_vx/0xFF;
 			if (Math.abs(_vx)<_settings.vxThreshold) {
 				//no turn
 				vTrim=_settings.vTrimMean;
@@ -174,18 +183,28 @@ var HelicoLeapController=(function() {
 				vTrim=_settings.vTrimMean+ga0*(0xFF-_settings.vTrimMean);
 				vx=_settings.vxMean+ga0*(0xFF-_settings.vxMean);
 				vBalance=7;
-				//_vx=_vxmin;
 			} else if (_vx<0){
 				//left turn
 				vBalance=1;
-				//_vx=_vxmax;
 				vTrim=_settings.vTrimMean+ga0*_settings.vTrimMean;
 				vx=_settings.vxMean+ga0*_settings.vxMean;
 			}
 
 			vx=Math.floor(vx);
 			vTrim=Math.floor(vTrim);
+			*/
 
+			console.log(_vx);
+			vTrim=_settings.vTrimMean;
+			vx=Math.floor(Math.abs(_vx));
+			if (vx<_settings.vxThreshold){
+				vx=0;
+				vBalance=_settings.vBalanceMiddle;
+				//vBalance=5;
+			} else {
+				vx=Math.floor(0xff*(vx-_settings.vxThreshold)/(0xff-_settings.vxThreshold));
+				vBalance=(_vx>0)?_settings.vBalanceRight:_settings.vBalanceLeft;
+			}
 
 			//FORWARD or BACKWARD
 			var vyFront, vyBack;
